@@ -485,52 +485,13 @@ server 192.174.3.3 weight=8; #IP Lawine
 server {
 	listen 80;
 	server_name granz.channel.a11.com ;
-
-	location / {
-	auth_basic "Restricted Area"; 
-auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
-	proxy_pass http://myweb;
-	}
-
-	location /its { 
-proxy_pass https://www.its.ac.id; 
-} 
-	
-	allow 192.174.3.69;
-allow 192.174.3.70;
-allow 192.174.4.167;
-allow 192.174.4.168;
-deny all;
-}
-
-ln -s /etc/nginx/sites-available/granz.channel.a11 /etc/nginx/sites-enabled
-
-echo 'upstream laravel {
-server 192.174.4.1; #IP Fern
-server 192.174.4.2; #IP Flamme
-server 192.174.4.3; #IP Frieren
-}
-server {
-listen 80;
-server_name riegel.canyon.a11.com;
+        } 
 
 location / {
-proxy_bind 192.174.2.2;
-proxy_pass http://laravel;
+        proxy_pass http://worker;
+        }
 }
-location /fern/ {
-        proxy_bind 192.174.2.2;
-        proxy_pass http://192.174.4.1/;
-}
-location /flamme/ {
-        proxy_bind 192.174.2.2;
-        proxy_pass http://192.174.4.2/;
-}
-location /frieren/ {
-        proxy_bind 192.174.2.2;
-        proxy_pass http://192.174.4.3/;
-}
-}
+
 ``` 
 Kemudian lakukan ```rm -rf /etc/nginx/sites-enabled/default``` lalu ```ln -s /etc/nginx/sites-available/riegel.canyon.a11 /etc/nginx/sites-enabled```. Jangan lupa lakukan restart dengan ```service nginx restart```
 Selanjutnya pada Revolte (Client) lakukan perintah ini:
@@ -577,7 +538,52 @@ ab -n 200 -c 10 http://www.granz.channel.a11.com/
 
 Kita melakukan testing lagi hampir sama dengan nomor 8 yang membedakan adalah testing menggunakan 1 worker, 2 worker dan 3 worker
 
+**Hasil**
+Pada 3 Worker
 
+![Alt text](Image/no.10%203%20worker.png)
+
+Pada 2 Worker
+
+![Alt text](Image/no.10%202%20worker.png)
+
+Pada 1 Worker
+
+![Alt text](Image/no.10%201%20worker.png)
+
+Grafik
+![Alt text](Image/no.10%20grafik.png)
+
+### Soal 10
+> Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
+
+Kembali ke dalam Eisen (Load Balance). Lalu lakukan:
+```shell
+rm -rf /etc/nginx/rahasiakita 
+mkdir /etc/nginx/rahasiakita 
+htpasswd -c -b /etc/nginx/rahasiakita/.htpasswd netics ajka11 
+```
+
+Kemudian pada file ```/etc/nginx/sites-available/granz.channel.a11``` ditambahkan:
+```shell
+auth_basic "Restricted Area"; 
+auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+```
+
+Sehingga akan menjadi
+```shell
+server {
+	listen 80;
+	server_name granz.channel.a11.com ;
+
+	location / {
+	auth_basic "Restricted Area"; 
+        auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+	proxy_pass http://myweb;
+	}
+}
+
+```
 
 ### Soal 11
 
