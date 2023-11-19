@@ -9,6 +9,9 @@
 | Muhammad Zien Zidan | 5025211122 | https://github.com/zienzidan   |
 | Glenaya             | 5025211202 | https://github.com/nyawnayaw05 |
 
+### GNS Project
+**Link Project :** https://its.id/m/Project-GNS
+
 ### Topologi
 
 ![Alt text](Image/image.png)
