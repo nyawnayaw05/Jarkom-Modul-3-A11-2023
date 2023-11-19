@@ -252,7 +252,7 @@ subnet 192.174.3.0 netmask 255.255.255.0{
 
 Kemudian restart DHCP Server menggunakan ```service isc-dhcp-server restart```
 
-###Soal 3
+### Soal 3
 >Client yang melalui Switch4 mendapatkan range IP dari [prefix IP].4.12 - [prefix IP].4.20 dan [prefix IP].4.160 - [prefix IP].4.168
 
 Kita melanjutkan dari soal nomor 2 yaitu menambahkan konfigurasi baru untuk Switch4 sehingga script akan menjadi seperti di bawah ini :
@@ -277,7 +277,7 @@ subnet 192.174.4.0 netmask 255.255.255.0{
 }
 ```
 
-###Soal 4
+### Soal 4
 > Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut
 
 Menambahkan konfigurasi ```option broadcast-address``` dan ```option domain-name-server``` pada Himmel yang terdapat di nomor 2 dan 3. Sehingga menjadi seperti di bawah ini :
