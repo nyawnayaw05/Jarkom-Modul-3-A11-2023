@@ -367,6 +367,7 @@ net.ipv4.ip_forward=1
 Kemudian restart dengan menggunakan `service isc-dhcp-relay restart`
 
 **Hasil**
+
 Merupakan hasil percobaan di client `Stark`
 ![Alt text](Image/image-3.png)
 
@@ -405,6 +406,7 @@ subnet 192.174.4.0 netmask 255.255.255.0{
 Jangan lupa lakukan restart dengan cara `service isc-dhcp-server restart`
 
 **Hasil**
+
 ![Alt text](Image/no.5%20switch4.png)
 ![Alt text](Image/no.5%20switch%203.png)
 
@@ -537,6 +539,7 @@ ab -n 1000 -c 100 http://www.granz.channel.a11.com/
 ```
 
 **Hasil**
+
 ![Alt text](Image/no.7(1).png)
 ![Alt text](Image/no.7(2).png)
 ![Alt text](Image/no.7(3).png)
@@ -566,6 +569,7 @@ ab -n 200 -c 10 http://www.granz.channel.a11.com/
 ![Alt text](Image/no.8%20generic.png)
 
 **Grafik**
+
 ![Alt text](Image/no.8%20grafik.png)
 
 ### Soal 9
