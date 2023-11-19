@@ -327,8 +327,6 @@ subnet 192.174.3.0 netmask 255.255.255.0{
         option routers 192.174.3.0;
         option broadcast-address 192.174.3.255;
         option domain-name-servers 192.174.1.2;
-        default-lease-time 180;
-        max-lease-time 5760;
 }
 
 subnet 192.174.4.0 netmask 255.255.255.0{
@@ -336,9 +334,7 @@ subnet 192.174.4.0 netmask 255.255.255.0{
         range 192.174.4.160 192.174.4.168;
         option routers 192.174.4.0;
         option broadcast-address 192.174.4.255;
-        option domain-name-servers 192.174.1.2;
-        default-lease-time 720;
-        max-lease-time 5760;
+        option domain-name-servers 192.174.1.2;;
 }
 ```
 
@@ -373,6 +369,211 @@ Kemudian restart dengan menggunakan `service isc-dhcp-relay restart`
 **Hasil**
 Merupakan hasil percobaan di client `Stark`
 ![Alt text](Image/image-3.png)
+
+## Soal 5
+> Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit
+
+Menambahkan fungsi ```default-lease-time``` dan ```max-lease-time``` pada Himmel (DHCP Server). Pada Switch3 dapat meminjam IP DHCP Server (Himmel) selama 3 menit yaitu ```180 s``` dan Switch4 dapat meminjam IP DHCP (Himmel) selamat 12 menit yaitu ```720 s```. Sedangkan peminjaman alamat IP adalah 96 menit atau sama dengan ```5760 s```. Sehingga pada ```etc/dhcp/dhcpd.conf``` berubah menjadi seperti di bawah ini :
+
+```shell
+subnet 192.174.1.0 netmask 255.255.255.0{
+}
+
+subnet 192.174.2.0 netmask 255.255.255.0{
+}
+
+subnet 192.174.3.0 netmask 255.255.255.0{
+        range 192.174.3.16 192.174.3.32;
+        range 192.174.3.64 192.174.3.80;
+        option routers 192.174.3.0;
+        option broadcast-address 192.174.3.255;
+        option domain-name-servers 192.174.1.2;
+        default-lease-time 180;
+        max-lease-time 5760;
+}
+
+subnet 192.174.4.0 netmask 255.255.255.0{
+        range 192.174.4.12 192.174.4.20;
+        range 192.174.4.160 192.174.4.168;
+        option routers 192.174.4.0;
+        option broadcast-address 192.174.4.255;
+        option domain-name-servers 192.174.1.2;
+        default-lease-time 720;
+        max-lease-time 5760;
+}
+```
+Jangan lupa lakukan restart dengan cara `service isc-dhcp-server restart`
+
+**Hasil**
+![Alt text](Image/no.5%20switch4.png)
+![Alt text](Image/no.5%20switch%203.png)
+
+### Soal 6
+> Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3.
+
+Lakukan set up terlebih dahulu pada Lugner, Linie, Lawine (PHP Worker) dengan cara :
+```shell
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install wget unzip php7.3 php7.3-fpm nginx -y
+```
+
+Setelah itu kita akan melakukan seperti yang dibawah ini. Kita menggunakan ```wget``` untuk download dan unzip.
+
+```shell
+wget -O file.zip "https://drive.google.com/uc?export=download&id=1ViSkRq7SmwZgdK64eRbr5Fm1EGCTP rU1"
+unzip file.zip 
+mv modul-3 /var/www/granz.channel.a11 
+rm file.zip
+```
+
+Lalu pada ```/etc/nginx/sites-available/granz.channel.a11``` tambahkan : 
+```shell
+server {
+listen 80;
+
+root /var/www/granz.channel.a11;
+
+index index.php index.html index.htm;
+server_name granz.channel.a11.com;
+location / {
+	try_files $uri $uri/ /index.php?$query_string;
+}
+
+# pass PHP scripts to FastCGI server
+location ~ \.php$ {
+	include snippets/fastcgi-php.conf;
+	fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+}
+
+location ~ /\.ht {
+	deny all;
+}
+error_log /var/log/nginx/jarkom_error.log;
+access_log /var/log/nginx/jarkom_access.log;
+}
+
+ln -s /etc/nginx/sites-available/granz.channel.a11 /etc/nginx/sites-enabled
+```
+
+Kemudian lakukan ```rm -rf /etc/nginx/sites-enabled/default```. Selanjutnya lakukan restart menggunakan ```service nginx restart``` dan ```service php7.3-fpm start```
+
+### Soal 7
+> Kepala suku dari Bredt Region memberikan resource server sebagai berikut:
+a. Lawine, 4GB, 2vCPU, dan 80 GB SSD.
+b. Linie, 2GB, 2vCPU, dan 50 GB SSD.
+c. Lugner 1GB, 1vCPU, dan 25 GB SSD.
+aturlah agar Eisen dapat bekerja dengan maksimal, lalu lakukan testing dengan 1000 request dan 100 request/second.
+
+Pada Eisen (Load Balancer) lakukan set up terlebih dahulu dengan cara : 
+```shell
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf 
+apt-get update 
+apt-get install nginx apache2-utils -y
+```
+Lalu pada Heiter (DNS Server) kembalikan IP ke Eisen (Load Balancer) sehingga IP menjadi ```192.174.2.2```
+
+Selanjutnya pada ```/etc/nginx/sites-available/granz.channel.a11``` yang terdapat pada Eisen tambahkan: 
+```shell
+upstream myweb  {
+server 192.174.3.1 weight=1; #IP Lugner
+server 192.174.3.2 weight=4; #IP Lignie	
+server 192.174.3.3 weight=8; #IP Lawine
+ }
+server {
+	listen 80;
+	server_name granz.channel.a11.com ;
+
+	location / {
+	auth_basic "Restricted Area"; 
+auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+	proxy_pass http://myweb;
+	}
+
+	location /its { 
+proxy_pass https://www.its.ac.id; 
+} 
+	
+	allow 192.174.3.69;
+allow 192.174.3.70;
+allow 192.174.4.167;
+allow 192.174.4.168;
+deny all;
+}
+
+ln -s /etc/nginx/sites-available/granz.channel.a11 /etc/nginx/sites-enabled
+
+echo 'upstream laravel {
+server 192.174.4.1; #IP Fern
+server 192.174.4.2; #IP Flamme
+server 192.174.4.3; #IP Frieren
+}
+server {
+listen 80;
+server_name riegel.canyon.a11.com;
+
+location / {
+proxy_bind 192.174.2.2;
+proxy_pass http://laravel;
+}
+location /fern/ {
+        proxy_bind 192.174.2.2;
+        proxy_pass http://192.174.4.1/;
+}
+location /flamme/ {
+        proxy_bind 192.174.2.2;
+        proxy_pass http://192.174.4.2/;
+}
+location /frieren/ {
+        proxy_bind 192.174.2.2;
+        proxy_pass http://192.174.4.3/;
+}
+}
+``` 
+Kemudian lakukan ```rm -rf /etc/nginx/sites-enabled/default``` lalu ```ln -s /etc/nginx/sites-available/riegel.canyon.a11 /etc/nginx/sites-enabled```. Jangan lupa lakukan restart dengan ```service nginx restart```
+Selanjutnya pada Revolte (Client) lakukan perintah ini:
+```shell 
+ab -n 1000 -c 100 http://www.granz.channel.a11.com/ 
+```
+
+**Hasil**
+![Alt text](Image/no.7(1).png)
+![Alt text](Image/no.7(2).png)
+![Alt text](Image/no.7(3).png)
+
+### Soal 8
+> Karena diminta untuk menuliskan grimoire, buatlah analisis hasil testing dengan 200 request dan 10 request/second masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
+a. Nama Algoritma Load Balancer
+b. Report hasil testing pada Apache Benchmark
+c. Grafik request per second untuk masing masing algoritma. 
+d. Analisis
+
+Hal yang dilakukan sama.Laporan grimoire sudah ada di atas bagian laporan resmi ini. Untuk dapat melihat hasil lakukan pada Revolte (Client)
+```shell
+ab -n 200 -c 10 http://www.granz.channel.a11.com/ 
+```
+**Hasil**
+**Round Robin**
+![Alt text](Image/no.8%20round%20robin.png)
+
+**Least-Connection**
+![Alt text](Image/no.8%20least-connection.png)
+
+**IP-Hash**
+![Alt text](Image/no.8%20IP%20Hash.png)
+
+**Generic Hash**
+![Alt text](Image/no.8%20generic.png)
+
+**Grafik**
+![Alt text](Image/no.8%20grafik.png)
+
+### Soal 9
+> Dengan menggunakan algoritma Round Robin, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 100 request dengan 10 request/second, kemudian tambahkan grafiknya pada grimoire.
+
+Kita melakukan testing lagi hampir sama dengan nomor 8 yang membedakan adalah testing menggunakan 1 worker, 2 worker dan 3 worker
+
+
 
 ### Soal 11
 
